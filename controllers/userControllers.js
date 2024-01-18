@@ -80,8 +80,59 @@ const addUserInterest = async (req, res) => {
     }
   };
 
+const registerUserForEvent = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = req.body;
+        console.log(data);
+        console.log(userId);
+
+        const user = await UserRegistration.findOne({ userId: userId });
+        console.log(user);
+        user.events.push(data);
+        const updatedUser = await user.save();
+        res.status(200).json(updatedUser);
+
+
+    }catch (error) {
+        console.error("Error:", error.message);
+        return res
+          .status(500)
+          .json({ error: "Internal Server Error", details: error.message });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findOneAndDelete({ _id: userId });
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error:", error.message);
+        return res
+         .status(500)
+         .json({ error: "Internal Server Error", details: error.message });
+    }
+};
+
+const userRegisteredEvents = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await UserRegistration.findOne({ userId: userId });
+        res.status(200).json(user.events);
+    } catch (error) {
+        console.error("Error:", error.message);
+        return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error.message });
+    }
+};
+
 module.exports = {
   signup,
   login,
   addUserInterest,
+  registerUserForEvent,
+  deleteUser,
+  userRegisteredEvents,
 };
