@@ -141,6 +141,24 @@ const userRegisteredEvents = async (req, res) => {
     }
 };
 
+const getUserInterests = async (req, res) => {
+  try{
+    const userId = req.params.userId;
+    const user = await UserInterest.findOne({ userId: userId });
+    const userInterest = [];
+    for (const interest of user.interests) {
+      userInterest.push(InterestIdMappingInterest[interest]);
+    }
+
+    res.status(200).json(userInterest);
+  }catch(error){
+    console.error("Error:", error.message);
+    return res
+    .status(500)
+    .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -148,4 +166,5 @@ module.exports = {
   registerUserForEvent,
   deleteUser,
   userRegisteredEvents,
+  getUserInterests,
 };
