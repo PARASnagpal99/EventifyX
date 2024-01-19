@@ -5,7 +5,7 @@ const UserRegistration = require("../models/UserRegistration");
 const {
     InterestIdMappingInterest,
     InterestMappingInterestId,
-  } = require("../interest");
+  } = require("../utils/interest");
 
 const signup = async (req, res) => {
   try {
