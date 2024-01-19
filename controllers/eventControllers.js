@@ -4,7 +4,7 @@ const Event = require("../models/Event");
 const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID}/events/`;
 
 const { cityMappingCityId } = require("../utils/city");
-const {InterestMappingInterestId} = require("../utils/interest");
+const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
 
 
 const getAllEvents = async (req, res) => {
@@ -63,6 +63,9 @@ const getEventByCity = async (req, res) => {
   }
 };
 
+
+
+
 const getEventByInterest = async (req, res) => {
   try {
     const interest = req.params.interestName;
@@ -77,5 +80,6 @@ const getEventByInterest = async (req, res) => {
       .json({ error: "Internal Server Error", details: error.message });
   }
 };
+
 
 module.exports = { getAllEvents, getEventByCity ,getEventByInterest};

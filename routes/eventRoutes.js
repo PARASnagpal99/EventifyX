@@ -7,5 +7,4 @@ router.route('/').get(getAllEvents);
 router.route("/city/:cityName/").get(getEventByCity);
 router.route("/interest/:interestName/").get(getEventByInterest);
 
-
 module.exports = router ;
