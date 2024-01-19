@@ -18,4 +18,5 @@ router
   .route("/search/eventByName")
   .get(searchEventByEventName);
 
-module.exports = router;
+module.exports = router ;
+

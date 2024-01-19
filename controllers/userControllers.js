@@ -1,13 +1,16 @@
 const User = require("../models/User");
 const UserInterest = require("../models/UserInterest");
 const UserRegistration = require("../models/UserRegistration");
+const Interest = require("../models/Interest");
+const Event = require("../models/Event");
 
 const {
     InterestIdMappingInterest,
     InterestMappingInterestId,
   } = require("../utils/interest");
 
-  const signup = async (req, res) => {
+
+ const signup = async (req, res) => {
     try {
       const { email, firstName, lastName, password } = req.body;
   
@@ -58,7 +61,9 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && user.password === password) {
-      res.status(200).json({ message: "Login successful", userId: user._id });
+      res
+      .status(200)
+      .json({userId: user._id , firstName : user.firstName , lastName : user.lastName});
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
@@ -68,35 +73,38 @@ const login = async (req, res) => {
   }
 };
 
+
 const addUserInterest = async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const { interest } = req.body;
-  
-      // console.log(InterestMappingInterestId);
-      if (!InterestMappingInterestId.hasOwnProperty(interest)) {
-          throw new Error("Interset no defined");
-  
-      } 
-  
-      const interestId = InterestMappingInterestId[interest];
-      const user = await UserInterest.findOne({ userId });
-      // console.log(user);
+  try {
+    const userId = req.params.userId ;
+    const { interest } = req.body ;
+
+    if (!InterestMappingInterestId.hasOwnProperty(interest)) {
+        throw new Error("Interest no defined");
+    } 
+    const interestId = InterestMappingInterestId[interest];
+    console.log(interestId);
+    const user = await UserInterest.findOne({ userId });
+    console.log(user);
+    if(user.interests.includes(interestId)){
+      res.status(200).json({error:"Interest Alerady Exists"});
+    }else{
       user.interests.push(interestId);
       const updatedUser = await user.save();
       res.status(200).json(updatedUser);
-    } catch (error) {
-        console.error("Error:", error.message);
-        return res
-          .status(500)
-          .json({ error: "Internal Server Error", details: error.message });
     }
-  };
+  } catch (error) {
+      console.error("Error:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error.message });
+  }
+};
 
 const registerUserForEvent = async (req, res) => {
     try{
         const userId = req.params.userId;
-        const data = req.body;
+        const data   = req.body;
         console.log(data);
         console.log(userId);
 
@@ -105,8 +113,6 @@ const registerUserForEvent = async (req, res) => {
         user.events.push(data);
         const updatedUser = await user.save();
         res.status(200).json(updatedUser);
-
-
     }catch (error) {
         console.error("Error:", error.message);
         return res
@@ -114,6 +120,7 @@ const registerUserForEvent = async (req, res) => {
           .json({ error: "Internal Server Error", details: error.message });
     }
 };
+
 
 const deleteUser = async (req, res) => {
     try {
@@ -140,6 +147,7 @@ const userRegisteredEvents = async (req, res) => {
         .json({ error: "Internal Server Error", details: error.message });
     }
 };
+
 
 const getUserInterests = async (req, res) => {
   try{
