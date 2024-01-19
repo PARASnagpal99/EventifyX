@@ -7,37 +7,50 @@ const {
     InterestMappingInterestId,
   } = require("../utils/interest");
 
-const signup = async (req, res) => {
-  try {
-    const { email, firstName, lastName, password } = req.body;
-
-    // Validate and save user to the database using your User model
-    const newUser = new User({
-      email,
-      firstName,
-      lastName,
-      password,
-    });
-
-    const createdUser = await newUser.save();
-
-    console.log(createdUser);
-
-    if (createdUser._id) {
-      UserInterest.create({ userId: createdUser._id, interests: [] }),
-        UserRegistration.create({
-          userId: createdUser._id,
-          resregistrations: [],
-        });
+  const signup = async (req, res) => {
+    try {
+      const { email, firstName, lastName, password } = req.body;
+  
+      // Validate email uniqueness
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+  
+      // Validate other fields if needed
+  
+      // Create a new user
+      const newUser = new User({
+        email,
+        firstName,
+        lastName,
+        password,
+      });
+  
+      // Save the user to the database
+      const createdUser = await newUser.save();
+  
+      console.log(createdUser);
+  
+      if (createdUser._id) {
+        // Create associated records
+        await UserInterest.create({ userId: createdUser._id, interests: [] });
+        await UserRegistration.create({ userId: createdUser._id, resregistrations: [] });
+      }
+  
+      res.status(201).json(createdUser);
+    } catch (error) {
+      console.error(error);
+  
+      // Check for Mongoose validation error (e.g., duplicate key error)
+      if (error.name === "MongoError" && error.code === 11000) {
+        return res.status(400).json({ error: "Duplicate key error" });
+      }
+  
+      res.status(500).json({ error: "Internal Server Error" });
     }
-
-    res.status(201).json(createdUser);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
+  };
+  
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
