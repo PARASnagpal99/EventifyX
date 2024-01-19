@@ -150,16 +150,14 @@ const userRegisteredEvents = async (req, res) => {
 
 
 const getUserInterests = async (req, res) => {
-  console.log("Enter");
   try{
     const userId = req.params.userId;
     const user = await UserInterest.findOne({ userId: userId });
-    console.log(user);
     const userInterest = [];
-    for (const interest of user.interests){
-      console.log(interest);
+    for (const interest of user.interests) {
       userInterest.push(InterestIdMappingInterest[interest]);
     }
+
     res.status(200).json(userInterest);
   }catch(error){
     console.error("Error:", error.message);
@@ -169,7 +167,6 @@ const getUserInterests = async (req, res) => {
   }
 };
 
-
 module.exports = {
   signup,
   login,
@@ -177,5 +174,5 @@ module.exports = {
   registerUserForEvent,
   deleteUser,
   userRegisteredEvents,
-  getUserInterests
+  getUserInterests,
 };

@@ -45,14 +45,14 @@ const getAllEvents = async (req, res) => {
     return res
       .status(500)
       .json({ error: "Internal Server Error", details: error.message });
-  }
+  } 
 };
 
 const getEventByCity = async (req, res) => {
   try {
     const city = req.params.cityName;
     const cityId = cityMappingCityId[city];
-    // console.log(cityId);
+    console.log(cityId);
     const event = await Event.find({ venue_id: cityId });
     return res.status(200).json(event);
   } catch (error) {
@@ -82,4 +82,34 @@ const getEventByInterest = async (req, res) => {
 };
 
 
-module.exports = { getAllEvents, getEventByCity ,getEventByInterest};
+const getEventByCityAndInterest = async (req, res) => {
+  try {
+    const {cityName, interestName} = req.params;
+    console.log(cityName, interestName);
+    const cityId = cityMappingCityId[cityName];
+    const interestId = InterestMappingInterestId[interestName];
+    // console.log(cityId);
+    const event = await Event.find({ category_id: interestId, venue_id: cityId });
+    return res.status(200).json(event);
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res
+     .status(500)
+     .json({ error: "Internal Server Error", details: error.message });
+  }
+}
+
+const searchEventByEventName = async (req, res) => {
+  console.log(req.query);
+  try {
+    const { query } = req.query;
+    const results = await Event.find({ event_name: { $regex: query, $options: 'i' } });
+    res.json(results);
+  } catch (error) {
+    console.error('Error searching events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { getAllEvents, getEventByCity ,getEventByInterest,getEventByCityAndInterest,searchEventByEventName};
+
