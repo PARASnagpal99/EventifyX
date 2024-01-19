@@ -58,7 +58,9 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && user.password === password) {
-      res.status(200).json({ message: "Login successful", userId: user._id });
+      res
+      .status(200)
+      .json({userId: user._id , firstName : user.firstName , lastName : user.lastName});
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }

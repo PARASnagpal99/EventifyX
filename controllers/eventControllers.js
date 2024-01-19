@@ -45,12 +45,6 @@ const getAllEvents = async (req, res) => {
     return res
       .status(500)
       .json({ error: "Internal Server Error", details: error.message });
-  } finally {
-    try {
-      await mongoose.connection.close();
-    } catch (closeError) {
-      console.error("Error closing MongoDB connection:", closeError.message);
-    }
   }
 };
 
