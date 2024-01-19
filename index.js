@@ -13,6 +13,13 @@ const app = express();
 // Middlewares 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const corsOptions = {
+    origin: 'http://localhost:3000', // Allow requests from this origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Allow cookies to be sent with the requests
+    optionsSuccessStatus: 204,
+  };
+app.use(cors(corsOptions));
 
 // Routes 
 app.use('/api/v1/user',userRoutes);
