@@ -67,7 +67,7 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (user && user.matchPassword(password)) {
+    if (user && await user.matchPassword(password)) {
       const userWithoutPassword = {
         userId: user._id,
         firstName : user.firstName ,
