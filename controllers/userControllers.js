@@ -85,7 +85,7 @@ const addUserInterest = async (req, res) => {
     const user = await UserInterest.findOne({ userId });
     console.log(user);
     if(user.interests.includes(interestId)){
-      res.status(200).json({error:"Interest Alerady Exists"});
+      res.status(500).json({error:"Interest Alerady Exists"});
     }else{
       user.interests.push(interestId);
       const updatedUser = await user.save();
@@ -93,6 +93,28 @@ const addUserInterest = async (req, res) => {
     }
   } catch (error) {
       console.error("Error:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
+const removeUserInterest = async (req, res) => {
+  try{
+    const userId = req.params.userId ;
+    const { interest } = req.body ;
+    const user = await UserInterest.findOne({userId});
+    const interestId = InterestMappingInterestId[interest];
+
+    if(!user.interests.includes(interestId)){
+      res.status(500).json({error:"No Interest found"});
+    }else{
+      user.interests = user.interests.filter(id => id !== interestId);
+      const updatedUser = await user.save();
+      res.status(200).json(updatedUser);
+    }
+  }catch(error){
+    console.error("Error:", error.message);
       return res
         .status(500)
         .json({ error: "Internal Server Error", details: error.message });
@@ -117,6 +139,26 @@ const registerUserForEvent = async (req, res) => {
   } catch (error) {
     console.error('Error:', error.message);
     return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+const unregisterUserForEvent = async (req, res) => {
+  try{
+    const userId = req.params.userId;
+    const event_id  = req.body;  // _id of the event store in the userRegistration events collection.
+    console.log(data);
+    console.log(event_id);
+
+    const user = await UserRegistration.findOne({ userId: userId });
+    console.log(user);
+    user.events = user.events.filter(event => event._id!== event_id);
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  }catch (error) {
+    console.error("Error:", error.message);
+    return res
+    .status(500)
+    .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
@@ -174,4 +216,6 @@ module.exports = {
   deleteUser,
   userRegisteredEvents,
   getUserInterests,
+  removeUserInterest,
+  unregisterUserForEvent
 };
