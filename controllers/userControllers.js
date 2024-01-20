@@ -1,15 +1,16 @@
-const User = require("../models/User");
-const UserInterest = require("../models/UserInterest");
-const UserRegistration = require("../models/UserRegistration");
-const sendMail = require('../utils/sendEmail');
+const User = require("../models/User") ;
+const UserInterest = require("../models/UserInterest") ;
+const UserRegistration = require("../models/UserRegistration") ;
+const sendMail = require('../utils/sendEmail') ;
+const generateToken = require('../utils/generateToken') ;
+const asyncHandler = require('express-async-handler') ;
+
 const {
     InterestIdMappingInterest,
     InterestMappingInterestId,
   } = require("../utils/interest");
 
-  const jwt = require("jsonwebtoken");
-
- const signup = async (req, res) => {
+ const signup = asyncHandler(async (req, res) => {
     try {
       const { email, firstName, lastName, password } = req.body;
   
@@ -32,7 +33,7 @@ const {
       // Save the user to the database
       const createdUser = await newUser.save();
   
-      console.log(createdUser);
+      ///console.log(createdUser);
   
       if (createdUser._id) {
         // Create associated records
@@ -45,10 +46,7 @@ const {
         lastName : createdUser.lastName,
         email: createdUser.email,
       };
-      const token = jwt.sign({ createdUser }, process.env.JWT_SECRET, { expiresIn: "1h" });
-      res
-      .status(201)
-      .json({user:userWithoutPassword,token: token});
+      res.status(201).json({user : userWithoutPassword , token : generateToken(createdUser._id)});
 
     } catch (error) {
       console.error(error);
@@ -60,26 +58,27 @@ const {
   
       res.status(500).json({ error: "Internal Server Error" });
     }
-  };
+  });
   
-const login = async (req, res) => {
+const login = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log(req.body);
 
     const user = await User.findOne({ email });
 
-    if (user && user.password === password) {
+    if (user && user.matchPassword(password)) {
       const userWithoutPassword = {
         userId: user._id,
         firstName : user.firstName ,
         lastName : user.lastName,
         email: user.email,
       };
-      const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const token = generateToken(user._id);
+     // console.log(user._id)
       res
       .status(200)
-      .json({user:userWithoutPassword,auth: token});
+      .json({ user:userWithoutPassword , auth: token});
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
@@ -87,7 +86,7 @@ const login = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 
 const addUserInterest = async (req, res) => {
