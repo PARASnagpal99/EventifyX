@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const {protect} = require("../middlewares/authMiddleware")
+
 const {
   getAllEvents,
   getEventByCity,
@@ -8,15 +10,18 @@ const {
   searchEventByEventName,
 } = require("../controllers/eventControllers");
 
-router.route("/").get(getAllEvents);
-router.route("/city/:cityName/").get(getEventByCity);
-router.route("/interest/:interestName/").get(getEventByInterest);
+
+router.route("/").get(protect,getAllEvents);
+router.route("/city/:cityName/").get(protect,getEventByCity);
+router.route("/interest/:interestName/").get(protect,getEventByInterest);
+
 router
   .route("/search/city/:cityName/interest/:interestName/")
-  .get(getEventByCityAndInterest);
+  .get(protect,getEventByCityAndInterest);
+
 router
   .route("/search/eventByName")
-  .get(searchEventByEventName);
+  .get(protect,searchEventByEventName);
 
 module.exports = router ;
 

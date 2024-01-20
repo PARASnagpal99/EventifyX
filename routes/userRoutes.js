@@ -11,9 +11,12 @@ const {
   removeUserInterest,
   unregisterUserForEvent
 } = require("../controllers/userControllers");
+const {protect} = require('../middlewares/authMiddleware');
+
 
 router.route("/signup").post(signup);
 router.route("/login").post(login);
+
 router.route("/addInterest/:userId").put(addUserInterest);
 router.route("/removeInterest/:userId").put(removeUserInterest);
 router.route("/userInterest/:userId").get(getUserInterests);
@@ -22,6 +25,7 @@ router.route("/deleteUser/:userId").delete(deleteUser);
 router.route("/userRegisteredEvents/:userId").get(userRegisteredEvents);
 router.route("/cancelUserRegistration/:userId").delete(unregisterUserForEvent);
 router.route("/userInterest/:userId").get(getUserInterests);
+
 
 
 module.exports = router;

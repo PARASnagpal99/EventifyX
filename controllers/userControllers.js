@@ -1,9 +1,7 @@
 const User = require("../models/User");
 const UserInterest = require("../models/UserInterest");
 const UserRegistration = require("../models/UserRegistration");
-const Interest = require("../models/Interest");
-const Event = require("../models/Event");
-
+const sendMail = require('../utils/sendEmail');
 const {
     InterestIdMappingInterest,
     InterestMappingInterestId,
@@ -124,23 +122,24 @@ const removeUserInterest = async (req, res) => {
 };
 
 const registerUserForEvent = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data   = req.body;
-        console.log(data);
-        console.log(userId);
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+    console.log(data);
+    console.log(userId);
 
-        const user = await UserRegistration.findOne({ userId: userId });
-        console.log(user);
-        user.events.push(data);
-        const updatedUser = await user.save();
-        res.status(200).json(updatedUser);
-    }catch (error) {
-        console.error("Error:", error.message);
-        return res
-          .status(500)
-          .json({ error: "Internal Server Error", details: error.message });
-    }
+    const user = await UserRegistration.findOne({ userId: userId });
+    const {email} = await User.findOne({ _id : userId });
+    console.log(email);
+    console.log(user);
+    user.events.push(data);
+    const updatedUser = await user.save();
+    await sendMail(email,data);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
 };
 
 const unregisterUserForEvent = async (req, res) => {
