@@ -19,9 +19,25 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true
-  }
+  },
+  friends: [
+    {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', // Reference to the User model
+        required: true
+      },
+      firstName: {
+        type: String,
+        required: true
+      },
+      lastName: {
+        type: String,
+        required: true
+      }
+    }
+  ]
 });
-
 
 userSchema.methods.matchPassword = async function(enteredPassword){
   return await bcrypt.compare(enteredPassword , this.password);

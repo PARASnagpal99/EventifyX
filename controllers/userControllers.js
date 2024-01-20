@@ -1,6 +1,8 @@
 const User = require("../models/User") ;
 const UserInterest = require("../models/UserInterest") ;
 const UserRegistration = require("../models/UserRegistration") ;
+const Event = require('../models/Event'); 
+const EventRegistration = require('../models/EventRegistration'); 
 const sendMail = require('../utils/sendEmail') ;
 const generateToken = require('../utils/generateToken') ;
 const asyncHandler = require('express-async-handler') ;
@@ -227,6 +229,66 @@ const getUserInterests = async (req, res) => {
   }
 };
 
+const getUsersRegisteredForAnEvent = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    
+    const isValidEventId = await Event.findById(eventId).exec();
+
+    if (!isValidEventId) {
+      return res.status(400).json({ error: "Event not found" });
+    }
+ 
+    const registrations = await EventRegistration.find({ eventId: eventId })
+      .populate('userId', 'firstName lastName'); // Populate user details
+
+    return res.status(200).json(registrations);
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid eventId format" });
+    }
+
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
+const getUserFriends = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const isValidUserId = await User.findById(userId).exec();
+
+    if (!isValidUserId) {
+      return res.status(400).json({ error: "Invalid userId format or user not found" });
+    }
+
+    const user = await User.findById(userId)
+      .populate('friends.userId', 'firstName lastName'); 
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const friends = user.friends;
+
+    return res.status(200).json({ friends });
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid userId format" });
+    }
+
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -236,5 +298,7 @@ module.exports = {
   userRegisteredEvents,
   getUserInterests,
   removeUserInterest,
-  unregisterUserForEvent
+  unregisterUserForEvent,
+  getUsersRegisteredForAnEvent,
+  getUserFriends
 };
