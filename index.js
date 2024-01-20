@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes')
+const {notFound, errorHandler} = require('./middlewares/errorMiddleware');
 
 connectDB();
 
@@ -21,6 +22,8 @@ app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/events',eventRoutes);
 
 
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
