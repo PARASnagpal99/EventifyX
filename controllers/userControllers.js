@@ -7,6 +7,7 @@ const {
     InterestMappingInterestId,
   } = require("../utils/interest");
 
+  const jwt = require("jsonwebtoken");
 
  const signup = async (req, res) => {
     try {
@@ -38,8 +39,17 @@ const {
         await UserInterest.create({ userId: createdUser._id, interests: [] });
         await UserRegistration.create({ userId: createdUser._id, resregistrations: [] });
       }
-  
-      res.status(201).json(createdUser);
+      const userWithoutPassword = {
+        userId: createdUser._id,
+        firstName : createdUser.firstName ,
+        lastName : createdUser.lastName,
+        email: createdUser.email,
+      };
+      const token = jwt.sign({ createdUser }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      res
+      .status(201)
+      .json({user:userWithoutPassword,token: token});
+
     } catch (error) {
       console.error(error);
   
@@ -55,13 +65,21 @@ const {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body);
 
     const user = await User.findOne({ email });
 
     if (user && user.password === password) {
+      const userWithoutPassword = {
+        userId: user._id,
+        firstName : user.firstName ,
+        lastName : user.lastName,
+        email: user.email,
+      };
+      const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: "1h" });
       res
       .status(200)
-      .json({userId: user._id , firstName : user.firstName , lastName : user.lastName});
+      .json({user:userWithoutPassword,auth: token});
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
@@ -81,11 +99,11 @@ const addUserInterest = async (req, res) => {
         throw new Error("Interest no defined");
     } 
     const interestId = InterestMappingInterestId[interest];
-    console.log(interestId);
     const user = await UserInterest.findOne({ userId });
-    console.log(user);
+
     if(user.interests.includes(interestId)){
-      res.status(500).json({error:"Interest Alerady Exists"});
+      console.log("Interest")
+      res.status(202).json({message:"Interest Alerady Exists"});
     }else{
       user.interests.push(interestId);
       const updatedUser = await user.save();
@@ -100,9 +118,11 @@ const addUserInterest = async (req, res) => {
 };
 
 const removeUserInterest = async (req, res) => {
+  console.log(req.body);
   try{
     const userId = req.params.userId ;
     const { interest } = req.body ;
+    console.log(userId);
     const user = await UserInterest.findOne({userId});
     const interestId = InterestMappingInterestId[interest];
 

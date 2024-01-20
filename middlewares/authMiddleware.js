@@ -11,13 +11,15 @@ const protect = asyncHandler(async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(" ")[1];
-     // console.log(req.headers);
       //decodes token id
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = await User.findById(decoded.id).select("-password");
-
-      next();
+      jwt.verify(token, process.env.JWT_SECRET, (err, valid) => {
+        if (err) {
+          res.status(401).send({ result: "Please provide valid token" });
+        } else {
+          console.log("Pass");
+          next();
+        }
+      });
     } catch (error) {
       res.status(401);
       throw new Error("Not authorized, token failed");
@@ -30,4 +32,4 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = {protect}
+module.exports = { protect };
