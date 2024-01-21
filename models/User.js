@@ -25,15 +25,12 @@ const userSchema = new Schema({
       userId: {
         type: Schema.Types.ObjectId,
         ref: 'User', // Reference to the User model
-        required: true
       },
       firstName: {
         type: String,
-        required: true
       },
       lastName: {
         type: String,
-        required: true
       }
     }
   ]

@@ -7,12 +7,13 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes')
 const {notFound, errorHandler} = require('./middlewares/errorMiddleware');
+const morgan = require('morgan');
 
 connectDB();
 
 const app = express();
 app.use(cors());
-
+app.use(morgan('tiny'));
 
 // Middlewares 
 app.use(express.json());

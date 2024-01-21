@@ -31,7 +31,7 @@ router.route("/cancelUserRegistration/:userId").delete(protect,unregisterUserFor
 router.route("/userInterest/:userId").get(protect,getUserInterests);
 router.route("/getRegisteredUsers/:eventId").get(protect,getUsersRegisteredForAnEvent);
 router.route("/getUserFriends/:userId").get(protect,getUserFriends);
-router.route("/changePassword/:userId").get(changePassword);
+router.route("/changePassword/:userId").put(changePassword);
 router.route("/getEventIdofUser/:userId").get(getUserRegistrationEventID);
 
 
