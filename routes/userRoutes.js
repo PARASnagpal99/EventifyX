@@ -11,7 +11,8 @@ const {
   removeUserInterest,
   unregisterUserForEvent,
   getUsersRegisteredForAnEvent,
-  getUserFriends
+  getUserFriends,
+  changePassword
 } = require("../controllers/userControllers");
 const {protect} = require('../middlewares/authMiddleware');
 
@@ -29,6 +30,7 @@ router.route("/cancelUserRegistration/:userId").delete(protect,unregisterUserFor
 router.route("/userInterest/:userId").get(protect,getUserInterests);
 router.route("/getRegisteredUsers/:eventId").get(protect,getUsersRegisteredForAnEvent);
 router.route("/getUserFriends/:userId").get(protect,getUserFriends);
+router.route("/changePassword/:userId").get(changePassword);
 
 
 module.exports = router;

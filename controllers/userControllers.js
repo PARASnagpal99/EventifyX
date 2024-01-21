@@ -234,21 +234,29 @@ const changePassword = async (req, res) => {
   try {
     const userId = req.params.userId;
     const { oldPassword, newPassword } = req.body;
+    console.log(req.body);
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: "Both oldPassword and newPassword are required" });
+    }
+
     const user = await User.findOne({ _id: userId });
-    if (user.password === oldPassword) {
-      user.password = "";
+
+    if (user && (await user.matchPassword(oldPassword))) {
+      user.password = newPassword;
       const updatedUser = await user.save();
-      res.status(200).json(updatedUser);
+
+      res.status(200).json({ message: "Password updated successfully", user: updatedUser });
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
   } catch (error) {
     console.error("Error:", error.message);
-    return res
-    .status(500)
-    .json({ error: "Internal Server Error", details: error.message });
+
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
-}
+};
+
 
 const getUsersRegisteredForAnEvent = async (req, res) => {
   try {
@@ -322,5 +330,6 @@ module.exports = {
   removeUserInterest,
   unregisterUserForEvent,
   getUsersRegisteredForAnEvent,
-  getUserFriends
+  getUserFriends,
+  changePassword
 };
