@@ -147,22 +147,55 @@ const removeUserInterest = async (req, res) => {
   }
 };
 
+// const registerUserForEvent = async (req, res) => {
+//   console.log(req.body);
+//   try {
+//     const userId = req.params.userId;
+//     const { event_name, event_description, event_id, event_url } = req.body;
+//     const data = { event_name, event_description, event_id, event_url }
+
+//     const user = await UserRegistration.findOne({ userId: userId });
+//     const { email } = await User.findOne({ _id: userId });
+//     // console.log(email);
+//     // console.log(user);
+    
+//     user.events.push(data);
+//     const updatedUser = await user.save();
+//     console.log(updatedUser);
+//     await sendMail(email, data);
+//     res.status(200).json(updatedUser);
+//   } catch (error) {
+//     console.error("Error:", error.message);
+//     return res
+//       .status(500)
+//       .json({ error: "Internal Server Error", details: error.message });
+//   }
+// };
+
 const registerUserForEvent = async (req, res) => {
   console.log(req.body);
   try {
     const userId = req.params.userId;
     const { event_name, event_description, event_id, event_url } = req.body;
-    const data = { event_name, event_description, event_id, event_url }
+    const data = { event_name, event_description, event_id, event_url };
 
     const user = await UserRegistration.findOne({ userId: userId });
     const { email } = await User.findOne({ _id: userId });
-    // console.log(email);
-    // console.log(user);
-    user.events.push(data);
-    const updatedUser = await user.save();
-    console.log(updatedUser);
-    await sendMail(email, data);
-    res.status(200).json(updatedUser);
+    
+    // Check if the event with the specified event_id already exists
+    const existingEventIndex = user.events.findIndex(event => event.event_id === event_id);
+
+    if (existingEventIndex === -1) {
+      // Event not found, add it to the events array
+      user.events.push(data);
+      const updatedUser = await user.save();
+      console.log(updatedUser);
+      await sendMail(email, data);
+      res.status(200).json(updatedUser);
+    } else {
+      // Event already exists, handle it accordingly (e.g., send a different response)
+      res.status(400).json({ error: "User already registered for this event" });
+    }
   } catch (error) {
     console.error("Error:", error.message);
     return res
@@ -170,6 +203,7 @@ const registerUserForEvent = async (req, res) => {
       .json({ error: "Internal Server Error", details: error.message });
   }
 };
+
 
 const unregisterUserForEvent = async (req, res) => {
 
@@ -337,6 +371,32 @@ const getUserFriends = async (req, res) => {
   }
 };
 
+const getUserRegistrationEventID = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await UserRegistration.findOne({ userId: userId });
+
+    if (user) {
+      const eventIds = user.events.map((event) => event.event_id);
+      return res.status(200).json(eventIds);
+    } else {
+      // Handle the case where the user registration does not exist for the given userId
+      return res.status(404).json({ error: "User registration not found" });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid userId format" });
+    }
+
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
+
 module.exports = {
   signup,
   login,
@@ -350,4 +410,5 @@ module.exports = {
   getUsersRegisteredForAnEvent,
   getUserFriends,
   changePassword,
+  getUserRegistrationEventID,
 };
