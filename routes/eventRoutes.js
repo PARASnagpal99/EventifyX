@@ -24,7 +24,7 @@ router
   .route("/search/eventByName")
   .get(protect,searchEventByEventName);
 
-router.route("/getEventBy/:EventId").get(protect,getEventByEventId)  
+router.route("/getEventBy/:event_id").get(protect,getEventByEventId)  
 
 module.exports = router ;
 
