@@ -5,6 +5,7 @@ const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID
 
 const { cityMappingCityId } = require("../utils/city");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
+const EventRegistration = require("../models/EventRegistration");
 
 
 const getAllEvents = async (req, res) => {
@@ -139,19 +140,13 @@ const getEventByEventId = async (req, res) => {
 
 const getUsersRegisteredForAnEvent = async (req, res) => {
   try {
-    const eventId = req.params.eventId;
-
-    const isValidEventId = await Event.findById(eventId).exec();
-
-    if (!isValidEventId) {
-      return res.status(400).json({ error: "Event not found" });
+    const eventId = req.params.event_id;
+    const event = await EventRegistration.findOne({eventId: eventId});
+    if(event) {
+      return res.status(200).json(event.user);
+    }else{
+      return res.status(200).json({message: "NODATA"});
     }
-
-    const registrations = await EventRegistration.find({
-      eventId: eventId,
-    }).populate("userId", "firstName lastName"); // Populate user details
-
-    return res.status(200).json(registrations);
   } catch (error) {
     console.error("Error:", error.message);
 
@@ -172,6 +167,7 @@ module.exports = {
   getEventByInterest,
   getEventByCityAndInterest,
   searchEventByEventName ,
-  getEventByEventId
+  getEventByEventId,
+  getUsersRegisteredForAnEvent
 };
 

@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const eventRegistrationSchema = new Schema({
   eventId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'Event', 
     required: true
   },
@@ -14,8 +14,7 @@ const eventRegistrationSchema = new Schema({
           type: Schema.Types.ObjectId,
            ref: 'User', 
            required: true
-        }},
-      {
+        },
         name :
          { 
           type: String,
