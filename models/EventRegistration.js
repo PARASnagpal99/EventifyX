@@ -7,11 +7,22 @@ const eventRegistrationSchema = new Schema({
     ref: 'Event', 
     required: true
   },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User', 
-    required: true
-  }
+  user : [
+    {  
+      userId : 
+         { 
+          type: Schema.Types.ObjectId,
+           ref: 'User', 
+           required: true
+        }},
+      {
+        name :
+         { 
+          type: String,
+          required: true
+         }
+    } 
+  ]
 }, { timestamps: true });
 
 const EventRegistration = mongoose.model('EventRegistration', eventRegistrationSchema);
