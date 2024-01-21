@@ -8,6 +8,7 @@ const {
   getEventByInterest,
   getEventByCityAndInterest,
   searchEventByEventName,
+  getEventByEventId
 } = require("../controllers/eventControllers");
 
 
@@ -22,6 +23,8 @@ router
 router
   .route("/search/eventByName")
   .get(protect,searchEventByEventName);
+
+router.route("/getEventBy/:EventId").get(protect,getEventByEventId)  
 
 module.exports = router ;
 
