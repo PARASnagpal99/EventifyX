@@ -5,6 +5,7 @@ const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID
 
 const { cityMappingCityId } = require("../utils/city");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
+const EventRegistration = require("../models/EventRegistration");
 
 
 const getAllEvents = async (req, res) => {
@@ -137,6 +138,28 @@ const getEventByEventId = async (req, res) => {
   }
 };
 
+const getUsersRegisteredForAnEvent = async (req, res) => {
+  try {
+    const eventId = req.params.event_id;
+    const event = await EventRegistration.findOne({eventId: eventId});
+    if(event) {
+      return res.status(200).json(event.user);
+    }else{
+      return res.status(200).json({message: "NODATA"});
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid eventId format" });
+    }
+
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
 
 module.exports = { 
   getAllEvents, 
@@ -144,6 +167,7 @@ module.exports = {
   getEventByInterest,
   getEventByCityAndInterest,
   searchEventByEventName ,
-  getEventByEventId
+  getEventByEventId,
+  getUsersRegisteredForAnEvent
 };
 

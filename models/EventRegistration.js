@@ -3,23 +3,25 @@ const { Schema } = mongoose;
 
 const eventRegistrationSchema = new Schema({
   eventId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Event',
-    required: true,
+    type: String,
+    ref: 'Event', 
+    required: true
   },
-  users: [
-    {
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  user : [
+    {  
+      userId : 
+         { 
+          type: Schema.Types.ObjectId,
+           ref: 'User', 
+           required: true
+        },
+        name :
+         { 
+          type: String,
+          required: true
+         }
+    } 
+  ]
 }, { timestamps: true });
 
 const EventRegistration = mongoose.model('EventRegistration', eventRegistrationSchema);

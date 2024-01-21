@@ -22,14 +22,12 @@ const userSchema = new Schema({
   },
   friends: [
     {
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
-      },
-      firstName: {
+      friendId: {
         type: String,
+        ref: 'User', // Reference to the User model
+        required: true
       },
-      lastName: {
+      name: {
         type: String,
       }
     }
