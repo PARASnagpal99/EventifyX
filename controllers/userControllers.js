@@ -228,17 +228,8 @@ const registerUserForEvent = async (req, res) => {
     const user = await UserRegistration.findOne({ userId: userId });
     const { email, firstName, lastName } = await User.findOne({ _id: userId });
 
-    if (mongoose.Types.ObjectId.isValid(event_id)) {
-      // If event_id is a valid ObjectId, use it as is
-      eventObjectId = mongoose.Types.ObjectId(event_id);
-    } else {
-      // If event_id is not a valid ObjectId, create a new one
-      eventObjectId = new mongoose.Types.ObjectId();
-    }
-    
-
     const event_details = await EventRegistration.findOneAndUpdate(
-      { eventId: eventObjectId },
+      { eventId: event_id },
       {
         $push: {
           user: {
@@ -406,36 +397,21 @@ const getUserFriends = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const isValidUserId = await User.findById(userId).exec();
-
-    if (!isValidUserId) {
-      return res
-        .status(400)
-        .json({ error: "Invalid userId format or user not found" });
-    }
-
-    const user = await User.findById(userId).populate(
-      "friends.userId",
-      "firstName lastName"
-    );
+    // Find the user by userId
+    const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    const friends = user.friends;
+    // Extract the friends array from the user object
+    // const friends = user.friends;
+    const friends = user.friends.map(friend => friend.friendId);
 
-    return res.status(200).json({ friends });
+    res.status(200).json({ friends });
   } catch (error) {
-    console.error("Error:", error.message);
-
-    if (error.name === "CastError" && error.kind === "ObjectId") {
-      return res.status(400).json({ error: "Invalid userId format" });
-    }
-
-    return res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
 
@@ -464,6 +440,31 @@ const getUserRegistrationEventID = async (req, res) => {
   }
 };
 
+const addFriend = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { friendId, name } = req.body;
+
+    // Check if the friendId already exists in the friends array
+    const user = await User.findOne({ _id: userId, 'friends.friendId': friendId });
+
+    if (user) {
+      console.log("Friend already exists")
+      return res.status(200).json({ message: 'Friend already exists in the list' });
+    }
+
+    // If not, add the friend to the friends array
+    await User.findByIdAndUpdate(userId, {
+      $push: { friends: { friendId, name } }
+    });
+
+    res.status(200).json({ message: 'Friend added successfully' });
+  } catch (error) {
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
 
 module.exports = {
   signup,
@@ -479,4 +480,5 @@ module.exports = {
   getUserFriends,
   changePassword,
   getUserRegistrationEventID,
+  addFriend
 };
