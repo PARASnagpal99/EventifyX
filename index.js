@@ -11,11 +11,12 @@ const {notFound, errorHandler} = require('./middlewares/errorMiddleware');
 connectDB();
 
 const app = express();
+app.use(cors());
+
 
 // Middlewares 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
 
 // Routes 
 app.use('/api/v1/user',userRoutes);

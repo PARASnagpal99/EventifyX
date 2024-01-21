@@ -77,7 +77,7 @@ const login = asyncHandler(async (req, res) => {
         email: user.email,
       };
       const token = generateToken(user._id);
-     // console.log(user._id)
+      console.log(token);
       res
       .status(200)
       .json({ user:userWithoutPassword , auth: token});
@@ -164,16 +164,18 @@ const registerUserForEvent = async (req, res) => {
 };
 
 const unregisterUserForEvent = async (req, res) => {
+  console.log(req);
   try{
-    const userId = req.params.userId;
-    const event_id  = req.body;  // _id of the event store in the userRegistration events collection.
-    console.log(data);
+    const {userId} =  req.params;
+    const {event_id}  = req.body;  // _id of the event store in the userRegistration events collection.
     console.log(event_id);
 
     const user = await UserRegistration.findOne({ userId: userId });
     console.log(user);
-    user.events = user.events.filter(event => event._id!== event_id);
+    user.events = user.events.filter(event => event.event_id!== event_id);
+
     const updatedUser = await user.save();
+    
     res.status(200).json(updatedUser);
   }catch (error) {
     console.error("Error:", error.message);

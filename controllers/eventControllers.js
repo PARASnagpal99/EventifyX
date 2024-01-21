@@ -28,6 +28,7 @@ const getAllEvents = async (req, res) => {
           event_url: eventData.url,
           category_id: eventData.category_id,
           venue_id: eventData.venue_id,
+          logo_id : eventData.logo_id 
         });
 
         const savedEvent = await newEvent.save();

@@ -16,7 +16,7 @@ const sendMail = asyncHandler(async (email, event) => {
     from: `EventifyX <${process.env.EMAIL}>`,
     to: email,
     subject: 'Registration Confirmation',
-    html: `<h1>Congratulations! You have been successfully registered for Event ${event.event_name}. Your Event Details are as follows: ${event.event_description}. Go to <a href="${event.event_url}">${event.event_url}</a> for further information.</h1>`,
+    html: `<h1>Congratulations! You have been successfully registered for Event ${event.event_name}. Your Event Details are as follows: ${event.event_description}. Visit Our Website for further information.</h1>`,
   });
 
   console.log("Email sent successfully");
