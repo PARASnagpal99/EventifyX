@@ -11,6 +11,7 @@ const {
   InterestIdMappingInterest,
   InterestMappingInterestId,
 } = require("../utils/interest");
+const { default: mongoose } = require("mongoose");
 
 const signup = asyncHandler(async (req, res) => {
   try {
@@ -172,6 +173,51 @@ const removeUserInterest = async (req, res) => {
 //   }
 // };
 
+// const registerUserForEvent = async (req, res) => {
+//   console.log(req.body);
+//   try {
+//     const userId = req.params.userId;
+//     const { event_name, event_description, event_id, event_url } = req.body;
+//     const data = { event_name, event_description, event_id, event_url };
+
+//     const user = await UserRegistration.findOne({ userId: userId });
+//     const { email,firstName,lastName } = await User.findOne({ _id: userId });
+
+//     const event_details = await EventRegistration.findOneAndUpdate(
+//       { eventId: event_id },
+//       {
+//         $push: {
+//           user: {
+//             userId: userId, // assuming you have user_id defined somewhere
+//             name: firstName + " " + lastName,
+//           },
+//         },
+//       },
+//       { upsert: true, new: true }
+//     );
+    
+//     // Check if the event with the specified event_id already exists
+//     const existingEventIndex = user.events.findIndex(event => event.event_id === event_id);
+
+//     if (existingEventIndex === -1) {
+//       // Event not found, add it to the events array
+//       user.events.push(data);
+//       const updatedUser = await user.save();
+//       console.log(updatedUser);
+//       await sendMail(email, data);
+//       res.status(200).json(updatedUser);
+//     } else {
+//       // Event already exists, handle it accordingly (e.g., send a different response)
+//       res.status(400).json({ error: "User already registered for this event" });
+//     }
+//   } catch (error) {
+//     console.error("Error:", error.message);
+//     return res
+//       .status(500)
+//       .json({ error: "Internal Server Error", details: error.message });
+//   }
+// };
+
 const registerUserForEvent = async (req, res) => {
   console.log(req.body);
   try {
@@ -180,8 +226,30 @@ const registerUserForEvent = async (req, res) => {
     const data = { event_name, event_description, event_id, event_url };
 
     const user = await UserRegistration.findOne({ userId: userId });
-    const { email } = await User.findOne({ _id: userId });
+    const { email, firstName, lastName } = await User.findOne({ _id: userId });
+
+    if (mongoose.Types.ObjectId.isValid(event_id)) {
+      // If event_id is a valid ObjectId, use it as is
+      eventObjectId = mongoose.Types.ObjectId(event_id);
+    } else {
+      // If event_id is not a valid ObjectId, create a new one
+      eventObjectId = new mongoose.Types.ObjectId();
+    }
     
+
+    const event_details = await EventRegistration.findOneAndUpdate(
+      { eventId: eventObjectId },
+      {
+        $push: {
+          user: {
+            userId: userId, // Use userId from the outer scope
+            name: firstName + " " + lastName,
+          },
+        },
+      },
+      { upsert: true, new: true }
+    );
+
     // Check if the event with the specified event_id already exists
     const existingEventIndex = user.events.findIndex(event => event.event_id === event_id);
 
