@@ -228,6 +228,26 @@ const getUserInterests = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findOne({ _id: userId });
+    if (user.password === oldPassword) {
+      user.password = "";
+      const updatedUser = await user.save();
+      res.status(200).json(updatedUser);
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res
+    .status(500)
+    .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
