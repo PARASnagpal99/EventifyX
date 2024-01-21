@@ -137,6 +137,34 @@ const getEventByEventId = async (req, res) => {
   }
 };
 
+const getUsersRegisteredForAnEvent = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    const isValidEventId = await Event.findById(eventId).exec();
+
+    if (!isValidEventId) {
+      return res.status(400).json({ error: "Event not found" });
+    }
+
+    const registrations = await EventRegistration.find({
+      eventId: eventId,
+    }).populate("userId", "firstName lastName"); // Populate user details
+
+    return res.status(200).json(registrations);
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid eventId format" });
+    }
+
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
+
 
 module.exports = { 
   getAllEvents, 
