@@ -234,7 +234,7 @@ const registerUserForEvent = async (req, res) => {
       {
         $push: {
           user: {
-            userId: userId, // Use userId from the outer scope
+            userId: userId, 
             name: firstName + " " + lastName,
           },
         },
@@ -242,18 +242,15 @@ const registerUserForEvent = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    // Check if the event with the specified event_id already exists
     const existingEventIndex = user.events.findIndex(event => event.event_id === event_id);
 
     if (existingEventIndex === -1) {
-      // Event not found, add it to the events array
       user.events.push(data);
       const updatedUser = await user.save();
       console.log(updatedUser);
       await sendMail(email, data);
       res.status(200).json(updatedUser);
     } else {
-      // Event already exists, handle it accordingly (e.g., send a different response)
       res.status(400).json({ error: "User already registered for this event" });
     }
   } catch (error) {
@@ -291,85 +288,7 @@ const unregisterUserForEvent = async (req, res) => {
 
 // Written by PARAS NAGPAL :( 
 const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-
-    const authorizationHeader = req.headers['authorization'];
-
-    if (!authorizationHeader) {
-      return res.status(401).json({ error: 'Unauthorized - Missing Authorization header' });
-    }
-  
-    const token = authorizationHeader.split(' ')[1];
-
-    try {
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      const response = await axios.get('http://localhost:3000/api/v1/events', { headers });
-      const allEvents = [];
-
-      for (const event of response.data) {
-        allEvents.push(event.event_id);
-      }
- 
-      for (const eventId of allEvents) {
-        try {
-          const eventRegistration = await EventRegistration.findOne({ eventId });
-          
-          if (eventRegistration) {
-            const users = eventRegistration.users;
-            
-            for (const user of users) {
-              if (user.userId === userId) {
-                await EventRegistration.updateOne(
-                  { eventId: eventId },
-                  { $pull: { users: { userId: userId } } }
-                );
-                
-                console.log('User deleted from event registration');
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error updating event registration:', error);
-        }
-      }
       
-     
-     const friends_userID = [] ;
-     for(const friend of user.friends){
-        friends_userID.push(friend.userId);
-     }
-     for(const id of friends_userID){
-        if(id == userId){
-            await User.updateOne(
-              { _id: userId },
-              { $pull: { friends: { userId: userId } } },
-              (err, result) => {
-                if (err) {
-                  console.error('Error updating user:', err);
-                } else {
-                  console.log('User deleted from friends:', result);
-                }
-              })
-        }
-     }
-    
-     await UserInterest.findOneAndDelete({_id : userId});
-     await UserRegistration.findOneAndDelete({_id : userId});
-     const user = await User.findOneAndDelete({ _id: userId });
-     res.status(200).json(user);
-    } catch (error) {
-      console.error('Error fetching data:', error.message);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  } catch (error) {
-    console.error("Error:", error.message);
-    return res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
-  }
 };
 
 const userRegisteredEvents = async (req, res) => {
