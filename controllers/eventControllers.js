@@ -4,6 +4,7 @@ const Event = require("../models/Event");
 const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID}/events/`;
 
 const { cityMappingCityId } = require("../utils/city");
+const categoriesImages = require("../utils/images");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
 const EventRegistration = require("../models/EventRegistration");
 
@@ -123,7 +124,14 @@ const getEventByEventId = async (req, res) => {
       return res.status(404).json({ error: "Event not found" });
     }
 
-    return res.status(200).json(event);
+    // console.log(categoriesImages[event.category_id]);
+    // return res.status(200).json(event);
+    const eventWithImageUrl = {
+      ...event.toObject(), // Convert Mongoose document to plain object
+      imageUrl: categoriesImages[event.category_id],
+    };
+
+    return res.status(200).json(eventWithImageUrl);
   } catch (error) {
     console.error("Error:", error.message);
 
@@ -152,7 +160,7 @@ const getUsersRegisteredForAnEvent = async (req, res) => {
 
       // Convert the Map values (unique user objects) to an array
       const uniqueUsers = Array.from(uniqueUsersMap.values());
-      console.log(uniqueUsers);
+      // console.log(uniqueUsers);
 
       return res.status(200).json(uniqueUsers);
     }else{
