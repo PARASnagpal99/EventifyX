@@ -11,7 +11,7 @@ const eventRegistrationSchema = new Schema({
     {  
       userId : 
          { 
-          type: Schema.Types.ObjectId,
+           type: Schema.Types.ObjectId,
            ref: 'User', 
            required: true
         },
@@ -19,6 +19,10 @@ const eventRegistrationSchema = new Schema({
          { 
           type: String,
           required: true
+         } , 
+         isDeleted : {
+            type : Boolean,
+            default : false
          }
     } 
   ]

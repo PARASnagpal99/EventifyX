@@ -2,7 +2,7 @@ const axios = require("axios");
 const mongoose = require("mongoose");
 const Event = require("../models/Event");
 const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID}/events/`;
-
+const User = require("../models/User");
 const { cityMappingCityId } = require("../utils/city");
 const categoriesImages = require("../utils/images");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
@@ -41,7 +41,7 @@ const getAllEvents = async (req, res) => {
     console.log("Events fetched and saved successfully.");
 
     const allEvents = await Event.find();
-
+    allEvents.reverse();
     return res.json(allEvents);
   } catch (error) {
     console.error("Error:", error.message);
@@ -153,15 +153,12 @@ const getUsersRegisteredForAnEvent = async (req, res) => {
     if(event) {
       const uniqueUsersMap = new Map();
 
-      // Iterate through each user object and add it to the Map
       event.user.forEach(user => {
-        uniqueUsersMap.set(String(user.userId), user);
+           uniqueUsersMap.set(String(user.userId), user);
       });
 
-      // Convert the Map values (unique user objects) to an array
       const uniqueUsers = Array.from(uniqueUsersMap.values());
-      // console.log(uniqueUsers);
-
+      
       return res.status(200).json(uniqueUsers);
     }else{
       return res.status(200).json({message: "NODATA"});
@@ -178,6 +175,40 @@ const getUsersRegisteredForAnEvent = async (req, res) => {
       .json({ error: "Internal Server Error", details: error.message });
   }
 };
+// const getUsersRegisteredForAnEvent = async (req, res) => {
+//   try {
+//     const eventId = req.params.event_id;
+//     const event = await EventRegistration.findOne({eventId: eventId});
+//     if(event) {
+//       const uniqueUsersMap = new Map();
+
+//       // Iterate through each user object and add it to the Map
+//       event.user.forEach(async (user) => {
+//         const populatedUser = await User.findById(user.userId).where({ isDeleted: false });
+//         if (populatedUser) {
+//           uniqueUsersMap.set(String(populatedUser._id), populatedUser);
+//         }
+//       });
+
+//       // Convert the Map values (unique user objects) to an array
+//       const uniqueUsers = Array.from(uniqueUsersMap.values());
+
+//       return res.status(200).json(uniqueUsers);
+//     }else{
+//       return res.status(200).json({message: "NODATA"});
+//     }
+//   } catch (error) {
+//     console.error("Error:", error.message);
+
+//     if (error.name === "CastError" && error.kind === "ObjectId") {
+//       return res.status(400).json({ error: "Invalid eventId format" });
+//     }
+
+//     return res
+//       .status(500)
+//       .json({ error: "Internal Server Error", details: error.message });
+//   }
+// };
 
 
 module.exports = { 
