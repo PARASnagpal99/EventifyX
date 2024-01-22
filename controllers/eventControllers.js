@@ -143,7 +143,18 @@ const getUsersRegisteredForAnEvent = async (req, res) => {
     const eventId = req.params.event_id;
     const event = await EventRegistration.findOne({eventId: eventId});
     if(event) {
-      return res.status(200).json(event.user);
+      const uniqueUsersMap = new Map();
+
+      // Iterate through each user object and add it to the Map
+      event.user.forEach(user => {
+        uniqueUsersMap.set(String(user.userId), user);
+      });
+
+      // Convert the Map values (unique user objects) to an array
+      const uniqueUsers = Array.from(uniqueUsersMap.values());
+      console.log(uniqueUsers);
+
+      return res.status(200).json(uniqueUsers);
     }else{
       return res.status(200).json({message: "NODATA"});
     }
