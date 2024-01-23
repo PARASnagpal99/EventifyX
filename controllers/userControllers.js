@@ -32,13 +32,10 @@ const signup = asyncHandler(async (req, res) => {
       password,
     });
 
-    // Save the user to the database
     const createdUser = await newUser.save();
 
-    ///console.log(createdUser);
 
     if (createdUser._id) {
-      // Create associated records
       await UserInterest.create({ userId: createdUser._id, interests: [] });
       await UserRegistration.create({
         userId: createdUser._id,
@@ -60,7 +57,6 @@ const signup = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    // Check for Mongoose validation error (e.g., duplicate key error)
     if (error.name === "MongoError" && error.code === 11000) {
       return res.status(400).json({ error: "Duplicate key error" });
     }
@@ -72,9 +68,8 @@ const signup = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email});
 
     if (user && (await user.matchPassword(password))) {
       const userWithoutPassword = {
@@ -84,9 +79,7 @@ const login = asyncHandler(async (req, res) => {
         email: user.email,
       };
       const token = generateToken(user._id);
-
       res.status(200).json({ user: userWithoutPassword, auth: token });
-
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
@@ -108,7 +101,6 @@ const addUserInterest = async (req, res) => {
     const user = await UserInterest.findOne({ userId });
 
     if (user.interests.includes(interestId)) {
-      console.log("Interest");
       res.status(202).json({ message: "Interest Alerady Exists" });
     } else {
       user.interests.push(interestId);
@@ -124,11 +116,9 @@ const addUserInterest = async (req, res) => {
 };
 
 const removeUserInterest = async (req, res) => {
-  console.log(req.body);
   try {
     const userId = req.params.userId;
     const { interest } = req.body;
-    console.log(userId);
     const user = await UserInterest.findOne({ userId });
     const interestId = InterestMappingInterestId[interest];
 
@@ -218,7 +208,6 @@ const removeUserInterest = async (req, res) => {
 // };
 
 const registerUserForEvent = async (req, res) => {
-  console.log(req.body);
   try {
     const userId = req.params.userId;
     const { event_name, event_description, event_id, event_url } = req.body;
@@ -262,14 +251,11 @@ const registerUserForEvent = async (req, res) => {
 
 const unregisterUserForEvent = async (req, res) => {
 
-  console.log(req);
   try{
     const {userId} =  req.params;
-    const {event_id}  = req.body;  // _id of the event store in the userRegistration events collection.
-    console.log(event_id);
+    const {event_id}  = req.body;  
 
     const user = await UserRegistration.findOne({ userId: userId });
-    console.log(user);
     user.events = user.events.filter(event => event.event_id!== event_id);
 
 
@@ -284,7 +270,6 @@ const unregisterUserForEvent = async (req, res) => {
   }
 };
 
-// Written by PARAS NAGPAL :( 
 const deleteUser = async (req, res) => {
       
 };
@@ -324,7 +309,7 @@ const changePassword = async (req, res) => {
   try {
     const userId = req.params.userId;
     const { oldPassword, newPassword } = req.body;
-    console.log(req.body);
+    //console.log(req.body);
 
     if (!oldPassword || !newPassword) {
       return res
@@ -351,47 +336,18 @@ const changePassword = async (req, res) => {
   }
 };
 
-const getUsersRegisteredForAnEvent = async (req, res) => {
-  try {
-    const eventId = req.params.eventId;
-
-    const isValidEventId = await Event.findById(eventId).exec();
-
-    if (!isValidEventId) {
-      return res.status(400).json({ error: "Event not found" });
-    }
-
-    const registrations = await EventRegistration.find({
-      eventId: eventId,
-    }).populate("userId", "firstName lastName"); // Populate user details
-
-    return res.status(200).json(registrations);
-  } catch (error) {
-    console.error("Error:", error.message);
-
-    if (error.name === "CastError" && error.kind === "ObjectId") {
-      return res.status(400).json({ error: "Invalid eventId format" });
-    }
-
-    return res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
-  }
-};
 
 const getUserFriends = async (req, res) => {
   try {
+
     const userId = req.params.userId;
 
-    // Find the user by userId
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    // Extract the friends array from the user object
-    // const friends = user.friends;
+    console.log(user)
     const friends = user.friends.map(friend => friend.friendId);
 
     res.status(200).json({ friends });
@@ -410,7 +366,6 @@ const getUserRegistrationEventID = async (req, res) => {
       const eventIds = user.events.map((event) => event.event_id);
       return res.status(200).json(eventIds);
     } else {
-      // Handle the case where the user registration does not exist for the given userId
       return res.status(404).json({ error: "User registration not found" });
     }
   } catch (error) {
@@ -431,7 +386,6 @@ const addFriend = async (req, res) => {
     const userId = req.params.userId;
     const { friendId, name } = req.body;
 
-    // Check if the friendId already exists in the friends array
     const user = await User.findOne({ _id: userId, 'friends.friendId': friendId });
 
     if (user) {
@@ -439,7 +393,6 @@ const addFriend = async (req, res) => {
       return res.status(200).json({ message: 'Friend already exists in the list' });
     }
 
-    // If not, add the friend to the friends array
     await User.findByIdAndUpdate(userId, {
       $push: { friends: { friendId, name } }
     });
@@ -450,6 +403,27 @@ const addFriend = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
+
+const getUserFriendNames = async(req,res)=>{
+  try {
+
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    //console.log(user)
+    const friends = user.friends.map(friend => friend.name);
+
+    res.status(200).json({ friends });
+  } catch (error) {
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+}
+
 
 
 module.exports = {
@@ -462,9 +436,9 @@ module.exports = {
   getUserInterests,
   removeUserInterest,
   unregisterUserForEvent,
-  getUsersRegisteredForAnEvent,
   getUserFriends,
   changePassword,
   getUserRegistrationEventID,
-  addFriend
+  addFriend ,
+  getUserFriendNames 
 };
