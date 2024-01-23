@@ -347,7 +347,7 @@ const getUserFriends = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
+    console.log(user)
     const friends = user.friends.map(friend => friend.friendId);
 
     res.status(200).json({ friends });
@@ -404,6 +404,27 @@ const addFriend = async (req, res) => {
   }
 };
 
+const getUserFriendNames = async(req,res)=>{
+  try {
+
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    //console.log(user)
+    const friends = user.friends.map(friend => friend.name);
+
+    res.status(200).json({ friends });
+  } catch (error) {
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+}
+
+
 
 module.exports = {
   signup,
@@ -418,5 +439,6 @@ module.exports = {
   getUserFriends,
   changePassword,
   getUserRegistrationEventID,
-  addFriend
+  addFriend ,
+  getUserFriendNames 
 };

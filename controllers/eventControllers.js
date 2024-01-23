@@ -115,7 +115,7 @@ const searchEventByEventName = async (req, res) => {
 };
 
 const getEventByEventId = async (req, res) => {
-  console.log(req.params.event_id)
+  //console.log(req.params.event_id)
   try {
     const event_id = req.params.event_id;
     const event = await Event.findOne({ event_id: event_id });

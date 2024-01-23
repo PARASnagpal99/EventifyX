@@ -13,7 +13,8 @@ const {
   getUserFriends,
   changePassword,
   getUserRegistrationEventID,
-  addFriend
+  addFriend,
+  getUserFriendNames
 } = require("../controllers/userControllers");
 const {protect} = require('../middlewares/authMiddleware');
 
@@ -33,6 +34,7 @@ router.route("/getUserFriends/:userId").get(protect,getUserFriends);
 router.route("/changePassword/:userId").put(protect,changePassword);
 router.route("/getEventIdofUser/:userId").get(protect,getUserRegistrationEventID);
 router.route("/addFriend/:userId").post(protect,addFriend);
+router.route("/getUserFriendsName/:userId").get(protect,getUserFriendNames)
 
 
 module.exports = router;
