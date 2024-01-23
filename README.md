@@ -10,3 +10,6 @@
 2. Install dependencies: npm install
 3. Configure MongoDB connection and Your OrganizationID and EVENTBRITE API TOKEN in .env file.
 4. Run the server: npm start
+
+## High Level Design of Project 
+![EventifyX - Page 2](https://github.com/PARASnagpal99/EventifyXBackend/assets/86076130/2f413464-51f2-49e4-92a7-6216060dcf45)
