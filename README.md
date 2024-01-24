@@ -13,3 +13,6 @@
 
 ## High Level Design of Project 
 ![EventifyX - Page 2](https://github.com/PARASnagpal99/EventifyXBackend/assets/86076130/2f413464-51f2-49e4-92a7-6216060dcf45)
+
+## ER model 
+![diagram-export-24-01-2024-09_19_24](https://github.com/PARASnagpal99/EventifyXBackend/assets/86076130/76dd10cf-6185-4476-9e39-c979e6a62ec5)
