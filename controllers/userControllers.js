@@ -60,7 +60,7 @@ const signup = asyncHandler(async (req, res) => {
     if (error.name === "MongoError" && error.code === 11000) {
       return res.status(400).json({ error: "Duplicate key error" });
     }
-
+    
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -88,6 +88,9 @@ const login = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
+
 
 const addUserInterest = async (req, res) => {
   try {
@@ -397,7 +400,7 @@ const addFriend = async (req, res) => {
       $push: { friends: { friendId, name } }
     });
 
-    res.status(200).json({ message: 'Friend added successfully' });
+    res.status(200).json({ message: 'Success' });
   } catch (error) {
     console.error('Error:', error.message);
     return res.status(500).json({ error: 'Internal Server Error', details: error.message });

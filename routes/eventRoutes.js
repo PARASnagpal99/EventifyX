@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const {protect} = require("../middlewares/authMiddleware")
+const cache = require("../middlewares/redisMiddleware")
+
 
 const {
   getAllEvents,
@@ -13,7 +15,7 @@ const {
 } = require("../controllers/eventControllers");
 
 
-router.route("/").get(protect,getAllEvents);
+router.route("/").get(cache,protect,getAllEvents);
 router.route("/city/:cityName/").get(protect,getEventByCity);
 router.route("/interest/:interestName/").get(protect,getEventByInterest);
 
