@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes')
+const adminRoutes = require('./routes/adminRoutes');
 const {notFound, errorHandler} = require('./middlewares/errorMiddleware');
 const morgan = require('morgan');
 
@@ -22,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Routes 
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/events',eventRoutes);
-
+app.use('/api/v1/admin',adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

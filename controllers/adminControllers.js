@@ -37,13 +37,12 @@ const adminSignup = asyncHandler(async (req, res) => {
         firstName: createdUser.firstName,
         lastName: createdUser.lastName,
         email: createdUser.email,
-        isAdmin : createdUser.isAdmin ,
+        role : 'admin' ,
       };
       res
         .status(201)
         .json({
-          user: userWithoutPassword,
-          token: generateToken(createdUser._id),
+          user: userWithoutPassword
         });
     } catch (error) {
       console.error(error);
@@ -68,9 +67,9 @@ const adminLogin = asyncHandler(async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          isAdmin : user.isAdmin
+          role : 'admin' ,
         };
-        const token = generateToken(user._id);
+        const token = generateToken({id : user._id , isAdmin : user.isAdmin});
         res.status(200).json({ user: userWithoutPassword, auth: token });
       } else {
         res.status(401).json({ error: "Invalid credentials" });
@@ -88,5 +87,6 @@ const createEvent = asyncHandler(async(req,res) =>{
 
 module.exports = {
     adminSignup , 
-    adminLogin
+    adminLogin , 
+    createEvent
 }

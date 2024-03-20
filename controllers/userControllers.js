@@ -42,17 +42,19 @@ const signup = asyncHandler(async (req, res) => {
         resregistrations: [],
       });
     }
+
     const userWithoutPassword = {
       userId: createdUser._id,
       firstName: createdUser.firstName,
       lastName: createdUser.lastName,
       email: createdUser.email,
+      role : 'user' ,
     };
+    
     res
       .status(201)
       .json({
-        user: userWithoutPassword,
-        token: generateToken(createdUser._id),
+        user: userWithoutPassword
       });
   } catch (error) {
     console.error(error);
@@ -70,15 +72,16 @@ const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email});
-
+    const role = user.isAdmin ? 'admin' : 'user' ;
     if (user && (await user.matchPassword(password))) {
       const userWithoutPassword = {
         userId: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role : role ,
       };
-      const token = generateToken(user._id);
+      const token = generateToken({id : user._id , isAdmin : user.isAdmin});
       res.status(200).json({ user: userWithoutPassword, auth: token });
     } else {
       res.status(401).json({ error: "Invalid credentials" });
