@@ -7,6 +7,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes')
 const adminRoutes = require('./routes/adminRoutes');
+const s3Routes = require('./routes/awsS3Routes');
 const {notFound, errorHandler} = require('./middlewares/errorMiddleware');
 const morgan = require('morgan');
 
@@ -24,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/events',eventRoutes);
 app.use('/api/v1/admin',adminRoutes);
+app.use('/api/v1/awsS3',s3Routes);
 
 app.use(notFound);
 app.use(errorHandler);

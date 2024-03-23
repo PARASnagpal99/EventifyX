@@ -7,3 +7,5 @@ const {isAdmin} = require("../middlewares/adminMiddleware");
 router.route("/adminLogin").post(adminLogin);
 router.route("/adminSignup").post(adminSignup);
 router.route("/createEvent").post(isAdmin,protect,createEvent);
+
+module.exports = router ;

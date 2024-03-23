@@ -3,6 +3,9 @@ const asyncHandler = require("express-async-handler");
 const generateToken = require("../utils/generateToken");
 const UserRegistration = require("../models/UserRegistration");
 const UserInterest = require("../models/UserInterest");
+const EventDetails = require("../models/EventDetails");
+
+const axios = require("axios");
 
 
 const adminSignup = asyncHandler(async (req, res) => {
@@ -81,7 +84,50 @@ const adminLogin = asyncHandler(async (req, res) => {
   });
 
 const createEvent = asyncHandler(async(req,res) =>{
-      
+  try{
+    const { eventName , description , start , end , category_id , venue_id , currency , created_by , image_s3_link } = req.body;
+
+    const headers = {
+      Authorization: `Bearer ${process.env.TOKEN}`,
+      'Content-Type': 'application/json', 
+    };
+
+    const payload = {
+      event: {
+        name: {
+          html: `<p>${eventName}</p>`, 
+        },
+        description: {
+          html: `<p>${description}</p>`, 
+        },
+        start,
+        end,
+        category_id,
+        venue_id,
+        currency,
+      }
+    };
+
+     const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID}/events/`;
+     const response = await axios.post(URL, payload, { headers }); 
+     const event = response.data ;
+     const event_id = event.id ;
+
+     const eventDetails = new EventDetails({
+       event_id,
+       created_by,
+       image_s3_link
+     });
+
+     await eventDetails.save();
+     const responseBody = {...event , eventDetails};
+     return res.status(200).send(responseBody);
+  }catch(error){
+    console.error("Error:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  } 
 });
 
 

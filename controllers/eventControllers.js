@@ -7,6 +7,7 @@ const { cityMappingCityId } = require("../utils/city");
 const categoriesImages = require("../utils/images");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
 const EventRegistration = require("../models/EventRegistration");
+const EventDetails = require("../models/EventDetails");
 
 
 const getAllEvents = async (req, res) => {
@@ -16,7 +17,7 @@ const getAllEvents = async (req, res) => {
     };
     const response = await axios.get(URL, { headers });
     const eventsData = response.data.events;
-
+    
     const savedEvents = [];
 
     for (const eventData of eventsData) {
@@ -30,7 +31,8 @@ const getAllEvents = async (req, res) => {
           event_url: eventData.url,
           category_id: eventData.category_id,
           venue_id: eventData.venue_id,
-          logo_id : eventData.logo_id 
+          start : eventData.start ,
+          end : eventData.end ,
         });
 
         const savedEvent = await newEvent.save();
@@ -115,7 +117,6 @@ const searchEventByEventName = async (req, res) => {
 };
 
 const getEventByEventId = async (req, res) => {
-  //console.log(req.params.event_id)
   try {
     const event_id = req.params.event_id;
     const event = await Event.findOne({ event_id: event_id });
@@ -124,22 +125,20 @@ const getEventByEventId = async (req, res) => {
       return res.status(404).json({ error: "Event not found" });
     }
 
-    // console.log(categoriesImages[event.category_id]);
-    // return res.status(200).json(event);
-    const eventWithImageUrl = {
-      ...event.toObject(), // Convert Mongoose document to plain object
-      imageUrl: categoriesImages[event.category_id],
-    };
+     const eventDetails = await EventDetails.findOne({ event_id: event_id });   
+     if (!eventDetails) {
+        const newEventDetails = new EventDetails({ event_id });
+        await newEventDetails.save(); 
+     }
 
-    return res.status(200).json(eventWithImageUrl);
+     const eventResponseBody = {
+           ...event.toObject(), 
+           ...(eventDetails ? eventDetails.toObject() : {}) 
+     };
+
+     return res.status(200).json(eventResponseBody);
   } catch (error) {
     console.error("Error:", error.message);
-
-    // Check for specific Mongoose validation error
-    if (error.name === "CastError" && error.kind === "ObjectId") {
-      return res.status(400).json({ error: "Invalid eventId format" });
-    }
-
     return res
       .status(500)
       .json({ error: "Internal Server Error", details: error.message });
