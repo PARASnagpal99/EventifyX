@@ -4,8 +4,8 @@ const {adminLogin , adminSignup , createEvent} = require("../controllers/adminCo
 const {protect} = require("../middlewares/authMiddleware");
 const {isAdmin} = require("../middlewares/adminMiddleware");
 
-router.route("/adminLogin").post(adminLogin);
-router.route("/adminSignup").post(adminSignup);
-router.route("/createEvent").post(isAdmin,protect,createEvent);
+router.route("/login").post(adminLogin);
+router.route("/signup").post(adminSignup);
+router.route("/createEvent").post(createEvent);
 
 module.exports = router ;

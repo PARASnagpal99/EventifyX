@@ -8,7 +8,7 @@ const categoriesImages = require("../utils/images");
 const {InterestMappingInterestId , InterestIdMappingInterest} = require("../utils/interest");
 const EventRegistration = require("../models/EventRegistration");
 const EventDetails = require("../models/EventDetails");
-
+const {getPresignedUrl } = require('../utils/s3Utils');
 
 const getAllEvents = async (req, res) => {
   try {
@@ -126,14 +126,23 @@ const getEventByEventId = async (req, res) => {
     }
 
      const eventDetails = await EventDetails.findOne({ event_id: event_id });   
+
+     let image_s3_url = "";
+     if(eventDetails){
+        const s3Key = eventDetails.image_s3_key;
+        let {signedUrl} = await getPresignedUrl(s3Key);
+        image_s3_url = signedUrl ;
+     }
+
      if (!eventDetails) {
         const newEventDetails = new EventDetails({ event_id });
         await newEventDetails.save(); 
      }
-
+     
      const eventResponseBody = {
            ...event.toObject(), 
-           ...(eventDetails ? eventDetails.toObject() : {}) 
+           ...(eventDetails ? eventDetails.toObject() : {}) ,
+           image_s3_url : image_s3_url
      };
 
      return res.status(200).json(eventResponseBody);

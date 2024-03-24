@@ -72,14 +72,13 @@ const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email});
-    const role = user.isAdmin ? 'admin' : 'user' ;
     if (user && (await user.matchPassword(password))) {
       const userWithoutPassword = {
         userId: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role : role ,
+        role : 'user' ,
       };
       const token = generateToken({id : user._id , isAdmin : user.isAdmin});
       res.status(200).json({ user: userWithoutPassword, auth: token });

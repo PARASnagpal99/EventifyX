@@ -4,13 +4,15 @@ const generateToken = require("../utils/generateToken");
 const UserRegistration = require("../models/UserRegistration");
 const UserInterest = require("../models/UserInterest");
 const EventDetails = require("../models/EventDetails");
+const moment = require('moment-timezone');
+
 
 const axios = require("axios");
 
 
 const adminSignup = asyncHandler(async (req, res) => {
     try {
-      const { email, firstName, lastName, password , isAdmin} = req.body;
+      const { email, firstName, lastName, password , role} = req.body;
   
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -22,7 +24,7 @@ const adminSignup = asyncHandler(async (req, res) => {
         firstName,
         lastName,
         password,
-        isAdmin
+        role
       });
   
       const createdUser = await newUser.save();
@@ -64,7 +66,7 @@ const adminLogin = asyncHandler(async (req, res) => {
   
       const user = await User.findOne({ email});
   
-      if (user && (await user.matchPassword(password)) && user.isAdmin) {
+      if (user && (await user.matchPassword(password)) && user.role === 'admin') {
         const userWithoutPassword = {
           userId: user._id,
           firstName: user.firstName,
@@ -85,13 +87,11 @@ const adminLogin = asyncHandler(async (req, res) => {
 
 const createEvent = asyncHandler(async(req,res) =>{
   try{
-    const { eventName , description , start , end , category_id , venue_id , currency , created_by , image_s3_link } = req.body;
-
+    const { eventName , description , start , end , category_id , venue_id , currency , created_by , image_s3_key } = req.body;
     const headers = {
       Authorization: `Bearer ${process.env.TOKEN}`,
       'Content-Type': 'application/json', 
     };
-
     const payload = {
       event: {
         name: {
@@ -100,14 +100,20 @@ const createEvent = asyncHandler(async(req,res) =>{
         description: {
           html: `<p>${description}</p>`, 
         },
-        start,
-        end,
+        start : {
+            timezone : start.timezone,
+            utc : moment.tz(start.utc , 'utc').format()
+        },
+        end : {
+            timezone : end.timezone,
+            utc : moment.tz(end.utc , 'utc').format()
+        },
         category_id,
         venue_id,
         currency,
       }
     };
-
+     
      const URL = `https://www.eventbriteapi.com/v3/organizations/${process.env.ORG_ID}/events/`;
      const response = await axios.post(URL, payload, { headers }); 
      const event = response.data ;
@@ -116,7 +122,7 @@ const createEvent = asyncHandler(async(req,res) =>{
      const eventDetails = new EventDetails({
        event_id,
        created_by,
-       image_s3_link
+       image_s3_key
      });
 
      await eventDetails.save();

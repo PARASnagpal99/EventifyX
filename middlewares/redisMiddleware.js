@@ -18,7 +18,7 @@ const cache = (req, res, next) => {
       console.log('Cache Miss')
       res.sendResponse = res.json;
       res.json = (data) => {
-        redis.setex(cacheKey, 900, JSON.stringify(data)); // Set cache duration to 15 minutes
+        redis.setex(cacheKey, 300, JSON.stringify(data)); // Set cache duration to 15 minutes
         res.sendResponse(data);
       };
       next();
