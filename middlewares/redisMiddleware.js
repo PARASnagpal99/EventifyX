@@ -5,6 +5,7 @@ const cache = (req, res, next) => {
   const cacheKey = req.originalUrl;
 
   redis.get(cacheKey, (err, data) => {
+    console.log('redis client connected');
     if (err) {
       console.error('Redis error:', err);
       next();

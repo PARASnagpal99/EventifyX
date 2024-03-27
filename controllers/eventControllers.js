@@ -34,7 +34,7 @@ const getAllEvents = async (req, res) => {
           start : eventData.start ,
           end : eventData.end ,
         });
-
+        
         const savedEvent = await newEvent.save();
         savedEvents.push(savedEvent);
       }

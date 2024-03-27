@@ -2,6 +2,7 @@ const User = require("../models/User");
 const UserInterest = require("../models/UserInterest");
 const UserRegistration = require("../models/UserRegistration");
 const Event = require("../models/Event");
+const EventDetails = require("../models/EventDetails");
 const EventRegistration = require("../models/EventRegistration");
 const sendMail = require("../utils/sendEmail");
 const generateToken = require("../utils/generateToken");
@@ -78,7 +79,7 @@ const login = asyncHandler(async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role : 'user' ,
+        role : user.role ,
       };
       const token = generateToken({id : user._id , isAdmin : user.isAdmin});
       res.status(200).json({ user: userWithoutPassword, auth: token });
@@ -216,7 +217,8 @@ const registerUserForEvent = async (req, res) => {
   try {
     const userId = req.params.userId;
     const { event_name, event_description, event_id, event_url } = req.body;
-    const data = { event_name, event_description, event_id, event_url };
+    const {created_by } = await EventDetails.findOne({event_id : event_id});
+    const data = { event_name, event_description, event_id, event_url , created_by};
 
     const user = await UserRegistration.findOne({ userId: userId });
     const { email, firstName, lastName } = await User.findOne({ _id: userId });

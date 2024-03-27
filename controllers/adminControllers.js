@@ -72,7 +72,7 @@ const adminLogin = asyncHandler(async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          role : 'admin' ,
+          role : user.role ,
         };
         const token = generateToken({id : user._id , isAdmin : user.isAdmin});
         res.status(200).json({ user: userWithoutPassword, auth: token });
