@@ -23,11 +23,11 @@
 6. A Typical Event consists of Information of an Event like Event Title , its category , Venue , Image , Start Date and End Date , (Details of Person who created that event) .
 
 ## TODO 
-[] Create a Job Which automatically deletes the Events that have already happened at the End of the day .
-[] Improve UI and Use Latest State management and Querying Tools .
-[] Improve Add Friend and browse Activity Functionality .
-[] Add OTP verification for mail while logging in .
-[] Add unit Tests . 
+[ ] Create a Job Which automatically deletes the Events that have already happened at the End of the day .
+[ ] Improve UI and Use Latest State management and Querying Tools .
+[ ] Improve Add Friend and browse Activity Functionality .
+[ ] Add OTP verification for mail while logging in .
+[ ] Add unit Tests . 
 
 
 ## High Level Design of Project 
